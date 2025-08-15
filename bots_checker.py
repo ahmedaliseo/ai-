@@ -59,6 +59,7 @@ def check_robots_permission(robots_parser, user_agent, url):
 
 
 def crawl_with_user_agents(url):
+    results = []
     robots_parser = get_robots_parser(url)
     
     for company, agents in USER_AGENTS.items():
@@ -73,26 +74,32 @@ def crawl_with_user_agents(url):
                 
                 title, robots_meta, has_noindex = parse_html(response.text)
                 
-                # Calculate is_allowed: status 200 + robots.txt allows + no noindex
                 is_allowed = (response.status_code == 200 and robots_allowed and not has_noindex)
-
-                is_allowed_text = "Allowed" if is_allowed else "BLOCKED"
-                robots_status = "Allowed" if robots_allowed else "Blocked"
                 
-                
-                print(f"{company} {bot_name}:\t{is_allowed_text}")
-                print(f"\tStatus Code:\t{response.status_code}")
-                print(f"\tRobots Meta:\t{robots_meta}")
-                print(f"\tRobots.txt:\t{robots_status}")
-                print(f"\tTitle:\t\t{title}")
-                print(f"\tLoad Time:\t{load_time:.2f}s")
-                print("-"*60)
-                print("")
+                results.append({
+                    "Company": company,
+                    "Bot Name": bot_name,
+                    "Access": "Allowed" if is_allowed else "BLOCKED",
+                    "Status Code": response.status_code,
+                    "Robots Meta": robots_meta,
+                    "Robots.txt": "Allowed" if robots_allowed else "Blocked",
+                    "Title": title,
+                    "Load Time": f"{load_time:.2f}s"
+                })
                 
             except requests.exceptions.RequestException as e:
                 robots_allowed = check_robots_permission(robots_parser, user_agent, url)
-                robots_status = "Allowed" if robots_allowed else "Blocked"
-                print(f"{company}/{bot_name}: Error - {str(e)}, Robots.txt='{robots_status}'")
+                results.append({
+                    "Company": company,
+                    "Bot Name": bot_name,
+                    "Access": "Error",
+                    "Status Code": "-",
+                    "Robots Meta": str(e),
+                    "Robots.txt": "Allowed" if robots_allowed else "Blocked",
+                    "Title": "-",
+                    "Load Time": "-"
+                })
+    return results
 
 
 def parse_html(html_content):
