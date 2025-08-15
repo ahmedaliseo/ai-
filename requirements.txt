@@ -1,3 +1,4 @@
 requests>=2.25.0
 beautifulsoup4>=4.9.0
 protego>=0.1.16
+streamlit>=1.33.0
