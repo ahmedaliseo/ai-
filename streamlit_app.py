@@ -15,3 +15,13 @@ if st.button("Run Check"):
             results = crawl_with_user_agents(url)
         st.success("Done!")
         st.dataframe(results)
+
+if st.button("Run Check"):
+    if not validate_url(url):
+        st.error("Invalid URL. Please enter a valid one starting with http:// or https://")
+    else:
+        with st.spinner("Checking bots access..."):
+            results = crawl_with_user_agents(url)
+        st.success("Done!")
+        st.dataframe(results)
+
